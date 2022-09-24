@@ -6,12 +6,12 @@ import cflib.crtp
 from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 
-URI = 'radio://0/80/2M/E7E7E7E703'
+URI = 'radio://0/80/2M/E7E7E7E702'
 
-CX = 0.2
+CX = 0.22
 CY = 0.0
-k = 0.1
-R = 0.1
+k = 5.0
+R = 0.2
 v = 0.1
 
 logging.basicConfig(level=logging.ERROR)
@@ -73,7 +73,7 @@ def forward_circle(cf):
     fp.close()
 
 def land(cf, position):
-    landing_time = 5.0
+    landing_time = 1.0
     sleep_time = 0.1
     steps = int(landing_time / sleep_time)
     vz = -position / landing_time
