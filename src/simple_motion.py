@@ -38,7 +38,7 @@ def land(cf, position):
 if __name__ == '__main__':
     cflib.crtp.init_drivers()
 
-    with SyncCrazyflie(URI, cf=Crazyflie(rw_cache='./cache')) as scf:
+    with SyncCrazyflie(URI, cf=cflib.crazyflie.Crazyflie(rw_cache='./cache')) as scf:
         take_off(scf, 0.5)
         time.sleep(5)
         land(scf, 0.05)
