@@ -6,12 +6,12 @@ import cflib.crtp
 from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 
-URI = 'radio://0/80/2M/E7E7E7E702'
+URI = 'radio://0/80/2M/E7E7E7E703'
 
-CX = 0.22
-CY = 0.0
+CX = -0.21
+CY = 0.07
 k = 5.0
-R = 0.2
+R = 0.3
 v = 0.1
 
 logging.basicConfig(level=logging.ERROR)
