@@ -4,7 +4,7 @@
 $k$ $-$ smoothness coefficient \
 $R$ (or $\rho$) $-$ circle radius \
 $v$ $-$ Crazyflie speed \
-$d$ $-$ discance from Crazyflie to a circle center \
+$d$ $-$ distance from Crazyflie to a circle center \
 phi (or $\varphi$) $-$ phase angle \
 angle (or $\chi^c$) $-$ command course angle of Crazyflie \
 vx (or $v_x$) $-$ speed of Crazyflie along the x-axis in the world (global) coordinate system \
