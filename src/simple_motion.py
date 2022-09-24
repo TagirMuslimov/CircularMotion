@@ -2,6 +2,8 @@ import time
 
 import cflib.crtp
 
+URI = 'radio://0/80/2M/E7E7E7E703'
+
 def take_off(cf, position):
     take_off_time = 1.0
     sleep_time = 0.1
