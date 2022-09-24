@@ -1,4 +1,3 @@
-from cmath import atan, cos, pi, sin, sqrt
 import time
 import math
 import logging
@@ -9,10 +8,10 @@ from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 
 URI = 'radio://0/80/2M/E7E7E7E703'
 
-CX = 0.8
-CY = -0.4
-k = 0.01
-R = 0.3
+CX = 0.2
+CY = 0.0
+k = 0.1
+R = 0.1
 v = 0.1
 
 logging.basicConfig(level=logging.ERROR)
@@ -43,8 +42,11 @@ def forward(cf, distance):
         time.sleep(sleep_time)
 
 def forward_circle(cf):
-    steps = 1000
+    fp = open('log.csv', 'w')
+    fp.write('i; x; y; d; phi; angle; vx; vy; CX; CY; k; R; v \n')
+    steps = 20000
     for i in range (steps):
+
         print ("forward_circle" + str(i))
         print(position_estimate)
         px = position_estimate[0]
@@ -52,8 +54,23 @@ def forward_circle(cf):
         d, phi = distance_to_centre (px, py)
         angle = phase_angle (d, phi)
         vx, vy = get_velocity(v, angle)
+        fp.write(str(i) + ';' +
+            str(position_estimate[0]) + ';' +
+            str(position_estimate[1]) + ';' +
+            str(d) + ';' +
+            str(phi) + ';' +
+            str(angle) + ';' +
+            str(vx) + ';' +
+            str(vy) + ';' +
+            str(CX) + ';' +
+            str(CY) + ';' +
+            str(k) + ';' +
+            str(R) + ';' +
+            str(v) + '\n'
+        )
         cf.commander.send_velocity_world_setpoint(vx, vy, 0, 0)
-        time.sleep(0.1)
+    
+    fp.close()
 
 def land(cf, position):
     landing_time = 5.0
@@ -74,20 +91,20 @@ def land(cf, position):
     time.sleep(0.1)
 
 def distance_to_centre (px, py):
-    d = sqrt((px - CX)**2 + (py - CY)**2)
+    d = math.sqrt((px - CX)**2 + (py - CY)**2)
     phi = math.atan2(px - CX, py - CY)
     print('d= ' + str(d))
     print('phi= ' + str(phi))
     return (d, phi)
 
 def phase_angle (d, phi):
-    angle = phi + pi/2 + atan(k * (d - R))
+    angle = phi + math.pi/2 + math.atan(k * (d - R))
     print('angle= ' + str(angle))
     return angle
 
 def get_velocity(v, angle):
-    vx = v * sin(angle)
-    vy = v * cos(angle)
+    vx = v * math.sin(angle)
+    vy = v * math.cos(angle)
     print('vx= ' + str(vx))
     print('vy= ' + str(vy))
     return (vx.real, vy.real)
@@ -113,7 +130,7 @@ if __name__ == '__main__':
         logconf.start()
 
         cf=scf.cf
-        take_off(cf, 0.3)
+        take_off(cf, 0.5)
         forward_circle(cf)
         land(cf, 0)
 
