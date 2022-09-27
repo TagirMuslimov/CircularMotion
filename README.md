@@ -18,6 +18,12 @@ py (or $p_n$) $-$ coordinate of Crazyflie along the y-axis in the world (global)
 stateEstimate.x $-$ estimation of the copter's position with the Kalman filter along the x-axis in the world (global) coordinate system \
 stateEstimate.y $-$ estimation of the copter's position with the Kalman filter along the y-axis in the world (global) coordinate system \
 
+$\textbf{Control law for the Crazyflie course angle:}$
+
+$\chi^c=\varphi +\lambda(\frac{\pi }{2}+\mathrm{atan}(k(d-\rho )))$, 
+where $\lambda=1$ means clockwise motion and $\lambda=-1$ means counterclockwise motion.
+
+$\textbf{Control law for the Crazyflie speeds:}$ [Crazyflie speed commands](https://github.com/TagirMuslimov/CircularMotion/files/9658935/texstudio_FKQeoy.pdf)
 
 <figure>
   <img
