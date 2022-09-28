@@ -23,7 +23,7 @@ $\textbf{Control law for the Crazyflie course angle:}$
 $\chi^c=\varphi +\lambda(\frac{\pi }{2}+\mathrm{atan}(k(d-\rho )))$, 
 where $\lambda=1$ means clockwise motion and $\lambda=-1$ means counterclockwise motion.
 
-$\textbf{Control law for the Crazyflie speeds:}$ [Crazyflie speed commands](https://github.com/TagirMuslimov/CircularMotion/files/9658935/texstudio_FKQeoy.pdf)
+$\textbf{Control law for the Crazyflie speeds:}$ [Crazyflie speed commands](https://github.com/TagirMuslimov/CircularMotion/files/9663811/document_1.pdf)
 
 <figure>
   <img
