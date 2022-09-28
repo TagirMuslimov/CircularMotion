@@ -16,7 +16,7 @@ vz (or $v_z$) $-$ speed of Crazyflie along the z-axis in the world (global) coor
 px (or $p_e$) $-$ coordinate of Crazyflie along the x-axis in the world (global) coordinate system \
 py (or $p_n$) $-$ coordinate of Crazyflie along the y-axis in the world (global) coordinate system \
 stateEstimate.x $-$ estimation of the copter's position with the Kalman filter along the x-axis in the world (global) coordinate system \
-stateEstimate.y $-$ estimation of the copter's position with the Kalman filter along the y-axis in the world (global) coordinate system \
+stateEstimate.y $-$ estimation of the copter's position with the Kalman filter along the y-axis in the world (global) coordinate system 
 
 $\textbf{Control law for the Crazyflie course angle:}$
 
