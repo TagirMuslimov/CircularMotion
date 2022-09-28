@@ -15,7 +15,8 @@ R = 0.3
 v_f = 0.1
 D_12 = 1
 D_23 = 1
-v_cruis = 0.1
+v_cruis = 0.2
+k_f = 1
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -104,9 +105,9 @@ def phase_shift():
     return p_ab
 
 def velocity(p_12, p_23):
-    v1 = v_cruis + v_f * (2 / math.pi) * math.atan(k * (p_12 - D_12))
-    v2 = v_cruis + v_f * (2 / math.pi) * math.atan(k * (-p_12 + D_12 + p_23 - D_23))
-    v3 = v_cruis + v_f * (2 / math.pi) * math.atan(k * (-p_23 + D_23))
+    v1 = v_cruis + v_f * (2 / math.pi) * math.atan(k_f * (p_12 - D_12))
+    v2 = v_cruis + v_f * (2 / math.pi) * math.atan(k_f * (-p_12 + D_12 + p_23 - D_23))
+    v3 = v_cruis + v_f * (2 / math.pi) * math.atan(k_f * (-p_23 + D_23))
     return (v1, v2, v3)
 
 def distance_to_centre (px, py):
