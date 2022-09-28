@@ -12,7 +12,10 @@ CX = -0.21
 CY = 0.07
 k = 5.0
 R = 0.3
-v = 0.1
+v_f = 0.1
+D_12 = 1
+D_23 = 1
+v_cruis = 0.1
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -90,15 +93,21 @@ def land(cf, position):
     # since the message queue is not flushed before closing
     time.sleep(0.1)
 
-def phase_shift(cf, ):
-    dot_product = (pxi - CX)*(pxj - CX) + (pyi - CY)*(pyj - CY)
-    magnitude_i = math.sqrt((pxi - CX)**2 + (pyi - CY)**2)
-    magnitude_j = math.sqrt((pxj - CX)**2 + (pyj - CY)**2)
-    triple_product = (pxi - CX)*(pyj - CY) + (pxj - CX)*(pyi - CY)
-    pij = math.acos(dot_product / (magnitude_i * magnitude_j))
+def phase_shift():
+    dot_product = (px_a - CX)*(px_b - CX) + (py_a - CY)*(py_b - CY)
+    magnitude_i = math.sqrt((px_a - CX)**2 + (py_a - CY)**2)
+    magnitude_j = math.sqrt((px_b - CX)**2 + (py_b - CY)**2)
+    triple_product = (px_a - CX)*(py_b - CY) + (px_b - CX)*(py_a - CY)
+    p_ab = math.acos(dot_product / (magnitude_i * magnitude_j))
     if triple_product > 0:
-        pij = 2*math.pi - pij
-    return pij
+        p_ab = 2*math.pi - p_ab
+    return p_ab
+
+def velocity(p_12, p_23):
+    v1 = v_cruis + v_f * (2 / math.pi) * math.atan(k * (p_12 - D_12))
+    v2 = v_cruis + v_f * (2 / math.pi) * math.atan(k * (-p_12 + D_12 + p_23 - D_23))
+    v3 = v_cruis + v_f * (2 / math.pi) * math.atan(k * (-p_23 + D_23))
+    return (v1, v2, v3)
 
 def distance_to_centre (px, py):
     d = math.sqrt((px - CX)**2 + (py - CY)**2)
