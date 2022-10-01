@@ -17,11 +17,11 @@ R = 0.5
 v_f = 0.05
 D_12 = 2 * math.pi / 3
 D_23 = 2 * math.pi / 3
-v_cruis = 0.1
-k_f = 1
+v_cruis = 0.05
+k_f = 0.1
 
-T_Z = 0.5
-v_z = 0.1
+T_Z = 0.3
+v_z = 0.05
 
 logging.basicConfig(level=logging.ERROR)
 
