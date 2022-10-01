@@ -10,10 +10,10 @@ URI1 = 'radio://0/80/2M/E7E7E7E701'
 URI2 = 'radio://0/80/2M/E7E7E7E702'
 URI3 = 'radio://0/80/2M/E7E7E7E703'
 
-CX = -0.21
-CY = 0.07
+CX = 0.5
+CY = 0.0
 k = 5.0
-R = 0.3
+R = 0.5
 v_f = 0.05
 D_12 = 2 * math.pi / 3
 D_23 = 2 * math.pi / 3
