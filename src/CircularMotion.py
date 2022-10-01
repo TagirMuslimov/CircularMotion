@@ -97,7 +97,7 @@ def forward_circle(cf1, cf2, cf3):
 
         px_3 = position_estimate_cf3[0]
         py_3 = position_estimate_cf3[1]
-        pz_3 = position_estimate_cf1[3]
+        pz_3 = position_estimate_cf1[2]
 
         d_1, phi_1 = distance_to_centre (px_1, py_1)
         angle_1 = phase_angle (d_1, phi_1)
