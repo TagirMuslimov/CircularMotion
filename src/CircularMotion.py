@@ -118,21 +118,21 @@ def forward_circle(cf1, cf2, cf3):
         vx3, vy3 = get_velocity(v3, angle_3)
 
         vz1 = 0
-        if px_1 < T_Z:
+        if pz_1 < T_Z:
             vz1 = v_z
-        if px_1 > T_Z:
+        if pz_1 > T_Z:
             vz1 = -v_z
 
         vz2 = 0
-        if px_2 < T_Z:
+        if pz_2 < T_Z:
             vz2 = v_z
-        if px_2 > T_Z:
+        if pz_2 > T_Z:
             vz2 = -v_z
 
         vz3 = 0
-        if px_3 < T_Z:
+        if pz_3 < T_Z:
             vz3 = v_z
-        if px_3 > T_Z:
+        if pz_3 > T_Z:
             vz3 = -v_z              
         
         fp.write(
