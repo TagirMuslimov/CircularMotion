@@ -20,26 +20,32 @@ D_23 = 2 * math.pi / 3
 v_cruis = 0.1
 k_f = 1
 
+T_Z = 0.5
+v_z = 0.1
+
 logging.basicConfig(level=logging.ERROR)
 
-position_estimate_cf1 = [0, 0]
-position_estimate_cf2 = [0, 0]
-position_estimate_cf3 = [0, 0]
+position_estimate_cf1 = [0, 0, 0]
+position_estimate_cf2 = [0, 0, 0]
+position_estimate_cf3 = [0, 0, 0]
 
 def log_pos_callback_cf1(timestamp, data, logconf):
     global position_estimate_cf1
     position_estimate_cf1[0] = data['stateEstimate.x']
     position_estimate_cf1[1] = data['stateEstimate.y']
+    position_estimate_cf1[2] = data['stateEstimate.z']
 
 def log_pos_callback_cf2(timestamp, data, logconf):
     global position_estimate_cf2
     position_estimate_cf2[0] = data['stateEstimate.x']
     position_estimate_cf2[1] = data['stateEstimate.y']
+    position_estimate_cf2[2] = data['stateEstimate.z']
 
 def log_pos_callback_cf3(timestamp, data, logconf):
     global position_estimate_cf3
     position_estimate_cf3[0] = data['stateEstimate.x']
     position_estimate_cf3[1] = data['stateEstimate.y']
+    position_estimate_cf3[2] = data['stateEstimate.z']
 
 def take_off(cf1, cf2, cf3, position):
     take_off_time = 1.0
@@ -67,8 +73,12 @@ def forward(cf, distance):
         time.sleep(sleep_time)
 
 def forward_circle(cf1, cf2, cf3):
-    # fp = open('log.csv', 'w')
-    # fp.write('i; x; y; d; phi; angle; vx; vy; CX; CY; k; R; v \n')
+    fp = open('log.csv', 'w')
+    fp.write('i; TZ; vz; CX; CY; k; R; D_12; D_23; v_f; v_cruis; k_f; p12; p23;')
+    fp.write('px1; py1; pz1; d1; phi1; angle1; v1; vx1; vy1; vz1;')
+    fp.write('px2; py2; pz2; d2; phi2; angle2; v2; vx2; vy2; vz2;')
+    fp.write('px3; py3; pz3; d3; phi3; angle3; v3; vx3; vy3; vz3;')
+    fp.write('\n')
     steps = 20000
     for i in range (steps):
 
@@ -79,12 +89,15 @@ def forward_circle(cf1, cf2, cf3):
         
         px_1 = position_estimate_cf1[0]
         py_1 = position_estimate_cf1[1]
+        pz_1 = position_estimate_cf1[2]
 
         px_2 = position_estimate_cf2[0]
         py_2 = position_estimate_cf2[1]
+        pz_2 = position_estimate_cf2[2]
 
         px_3 = position_estimate_cf3[0]
         py_3 = position_estimate_cf3[1]
+        pz_3 = position_estimate_cf1[3]
 
         d_1, phi_1 = distance_to_centre (px_1, py_1)
         angle_1 = phase_angle (d_1, phi_1)
@@ -103,25 +116,81 @@ def forward_circle(cf1, cf2, cf3):
         vx1, vy1 = get_velocity(v1, angle_1)
         vx2, vy2 = get_velocity(v2, angle_2)
         vx3, vy3 = get_velocity(v3, angle_3)
-        # fp.write(str(i) + ';' +
-        #     str(position_estimate[0]) + ';' +
-        #     str(position_estimate[1]) + ';' +
-        #     str(d) + ';' +
-        #     str(phi) + ';' +
-        #     str(angle) + ';' +
-        #     str(vx) + ';' +
-        #     str(vy) + ';' +
-        #     str(CX) + ';' +
-        #     str(CY) + ';' +
-        #     str(k) + ';' +
-        #     str(R) + ';' +
-        #     str(v) + '\n'
-        # )
-        cf1.commander.send_velocity_world_setpoint(vx1, vy1, 0, 0)
-        cf2.commander.send_velocity_world_setpoint(vx2, vy2, 0, 0)
-        cf3.commander.send_velocity_world_setpoint(vx3, vy3, 0, 0)
+
+        vz1 = 0
+        if px_1 < T_Z:
+            vz1 = v_z
+        if px_1 > T_Z:
+            vz1 = -v_z
+
+        vz2 = 0
+        if px_2 < T_Z:
+            vz2 = v_z
+        if px_2 > T_Z:
+            vz2 = -v_z
+
+        vz3 = 0
+        if px_3 < T_Z:
+            vz3 = v_z
+        if px_3 > T_Z:
+            vz3 = -v_z              
+        
+        fp.write(
+            str(i) + ';' +
+            str(T_Z) + ';' +
+            str(v_z) + ';' +
+            str(CX) + ';' +
+            str(CY) + ';' +
+            str(k) + ';' +
+            str(R) + ';' +
+            str(D_12) + ';' +
+            str(D_23) + ';' +
+            str(v_f) + ';' +
+            str(v_cruis) + ';' +
+            str(k_f) + ';' +
+            str(p12) + ';' +
+            str(p23) + ';' +
+
+            str(px_1) + ';' +
+            str(py_1) + ';' +
+            str(pz_1) + ';' +
+            str(d_1) + ';' +
+            str(phi_1) + ';' +
+            str(angle_1) + ';' +
+            str(v1) + ';' +
+            str(vx1) + ';' +
+            str(vy1) + ';' +
+            str(vz1) + ';' +
+
+            str(px_2) + ';' +
+            str(py_2) + ';' +
+            str(pz_2) + ';' +
+            str(d_2) + ';' +
+            str(phi_2) + ';' +
+            str(angle_2) + ';' +
+            str(v2) + ';' +
+            str(vx2) + ';' +
+            str(vy2) + ';' +
+            str(vz2) + ';' +
+
+            str(px_3) + ';' +
+            str(py_3) + ';' +
+            str(pz_3) + ';' +
+            str(d_3) + ';' +
+            str(phi_3) + ';' +
+            str(angle_3) + ';' +
+            str(v3) + ';' +
+            str(vx3) + ';' +
+            str(vy3) + ';' +
+            str(vz3) + ';' +
+            '\n'
+        )
+
+        cf1.commander.send_velocity_world_setpoint(vx1, vy1, vz1, 0)
+        cf2.commander.send_velocity_world_setpoint(vx2, vy2, vz2, 0)
+        cf3.commander.send_velocity_world_setpoint(vx3, vy3, vz3, 0)
     
-    # fp.close()
+    fp.close()
 
 def land(cf1, cf2, cf3, position):
     landing_time = 1.0
@@ -192,18 +261,21 @@ if __name__ == '__main__':
                 logconf1 = LogConfig(name='Position', period_in_ms=10)
                 logconf1.add_variable('stateEstimate.x', 'float')
                 logconf1.add_variable('stateEstimate.y', 'float')
+                logconf1.add_variable('stateEstimate.z', 'float')
                 scf1.cf.log.add_config(logconf1)
                 logconf1.data_received_cb.add_callback(log_pos_callback_cf1)
 
                 logconf2 = LogConfig(name='Position', period_in_ms=10)
                 logconf2.add_variable('stateEstimate.x', 'float')
                 logconf2.add_variable('stateEstimate.y', 'float')
+                logconf2.add_variable('stateEstimate.z', 'float')
                 scf2.cf.log.add_config(logconf2)
                 logconf2.data_received_cb.add_callback(log_pos_callback_cf2)
 
                 logconf3 = LogConfig(name='Position', period_in_ms=10)
                 logconf3.add_variable('stateEstimate.x', 'float')
                 logconf3.add_variable('stateEstimate.y', 'float')
+                logconf3.add_variable('stateEstimate.z', 'float')
                 scf3.cf.log.add_config(logconf3)
                 logconf3.data_received_cb.add_callback(log_pos_callback_cf3)
 
@@ -216,7 +288,7 @@ if __name__ == '__main__':
                 cf3=scf3.cf
 
                 # взлетаем
-                take_off(cf1, cf2, cf3, 0.5)
+                take_off(cf1, cf2, cf3, T_Z)
 
                 # летим по кругу
                 forward_circle(cf1, cf2, cf3)
