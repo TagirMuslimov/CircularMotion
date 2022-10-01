@@ -7,7 +7,7 @@ from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 
 URI1 = 'radio://0/80/2M/E7E7E7E701'
-URI2 = 'radio://0/80/2M/E7E7E7E702'
+URI2 = 'radio://0/80/2M/E7E7E7E703'
 
 CX = 0.5
 CY = 0.0
