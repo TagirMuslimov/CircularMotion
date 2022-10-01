@@ -65,8 +65,8 @@ def forward(cf, distance):
 def forward_circle(cf1, cf2):
     fp = open('log.csv', 'w')
     fp.write('i; TZ; vz; CX; CY; k; R; D_12; v_f; v_cruis; k_f; p12;')
-    fp.write('px1; py1; pz1; d1; phi1; angle1; v1; vx1; vy1; vz1;')
-    fp.write('px2; py2; pz2; d2; phi2; angle2; v2; vx2; vy2; vz2')
+    fp.write('px1; py1; pz1; d1; phi1; angle1; v1; vx1; vy1; setPx1;setPy1;setPz1;')
+    fp.write('px2; py2; pz2; d2; phi2; angle2; v2; vx2; vy2; setPx2;setPy2;setPz2')
     fp.write('\n')
     steps = 20000
     for i in range (steps):
@@ -96,8 +96,14 @@ def forward_circle(cf1, cf2):
         vx1, vy1 = get_velocity(v1, angle_1)
         vx2, vy2 = get_velocity(v2, angle_2)
 
-        vz1 = 0
-        vz2 = 0
+        setPx1 = px_1 + vx1
+        setPx2 = px_2 + vx2
+
+        setPy1 = py_1 + vy1
+        setPy2 = py_2 + vy2
+
+        setPz1 = T_Z
+        setPz2 = T_Z
         
         fp.write(
             str(i) + ';' +
@@ -122,7 +128,9 @@ def forward_circle(cf1, cf2):
             str(v1) + ';' +
             str(vx1) + ';' +
             str(vy1) + ';' +
-            str(vz1) + ';' +
+            str(setPx1) + ';' +
+            str(setPy1) + ';' +
+            str(setPz1) + ';' +
 
             str(px_2) + ';' +
             str(py_2) + ';' +
@@ -133,13 +141,15 @@ def forward_circle(cf1, cf2):
             str(v2) + ';' +
             str(vx2) + ';' +
             str(vy2) + ';' +
-            str(vz2) + '' +
+            str(setPx2) + ';' +
+            str(setPy2) + ';' +
+            str(setPz2) + ';' +
 
             '\n'
         )
 
-        cf1.commander.send_velocity_world_setpoint(vx1, vy1, vz1, 0)
-        cf2.commander.send_velocity_world_setpoint(vx2, vy2, vz2, 0)
+        cf1.commander.send_position_setpoint(setPx1, setPy1, setPz1, 0)
+        cf2.commander.send_position_setpoint(setPx2, setPy2, setPz2, 0)
     
     fp.close()
 
