@@ -14,10 +14,10 @@ CX = -0.21
 CY = 0.07
 k = 5.0
 R = 0.3
-v_f = 0.1
-D_12 = 1
-D_23 = 1
-v_cruis = 0.2
+v_f = 0.05
+D_12 = 2 * math.pi / 3
+D_23 = 2 * math.pi / 3
+v_cruis = 0.1
 k_f = 1
 
 logging.basicConfig(level=logging.ERROR)
