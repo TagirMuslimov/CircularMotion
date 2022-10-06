@@ -115,8 +115,6 @@ def write_log(**log_vars):
 
 
 def forward_circle(cf1, cf2, cf3):
-    fp = open('log.csv', 'w')
-
     steps = 20000
     for i in range(steps):
 
