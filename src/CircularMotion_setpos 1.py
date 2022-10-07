@@ -10,12 +10,12 @@ from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 timestr = time.strftime("%Y%m%d-%H%M%S")
 fp = open(timestr + '_setpos1.csv', 'w')
 
-URI1 = 'radio://0/80/2M/E7E7E7E703'
+URI1 = 'radio://0/80/2M/E7E7E7E702'
 
 CX = 0.5
 CY = 0.0
-k = 1.0
-R = 0.3
+k = 5.0
+R = 0.5
 v_f = 0.05
 v_cruis = 0.3
 k_f = 0.1
@@ -91,8 +91,8 @@ def forward_circle(cf1):
 
         vx1, vy1 = get_velocity(v1, angle_1)
 
-        setPx1 = px_1 + vx1/5
-        setPy1 = py_1 + vy1/5
+        setPx1 = px_1 + vx1/10
+        setPy1 = py_1 + vy1/10
 
         if i == 0:
             init_log(i=i, T_Z=T_Z, v_z=v_z, CX=CX, CY=CY, k=k, R=R,
