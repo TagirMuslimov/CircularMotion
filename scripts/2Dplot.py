@@ -11,6 +11,6 @@ cols = df.columns
 for col in cols:
     df[col] = df[col].astype(float)
 
-df.plot(x='px_2', y='py_2')
+df.plot(x='i', y=['setPx1', 'setPy1'])
 
 plt.show()
