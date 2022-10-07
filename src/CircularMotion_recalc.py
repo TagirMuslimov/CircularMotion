@@ -175,11 +175,9 @@ def forward_circle(cf1, cf2, cf3):
                   px_3=px_3, py_3=py_3, pz_3=pz_3, d_3=d_3, phi_3=phi_3, angle_3=angle_3, v3=v3, vx3=vx3, vy3=vy3, setVx3=setVx3, setPy3=setVy3,
                   )
 
-        cf1.commander.send_hover_sentpoint(setVx1, setVy1, 0, T_Z)
-        cf2.commander.send_hover_sentpoint(setVx2, setVy2, 0, T_Z)
-        cf3.commander.send_hover_sentpoint(setVx3, setVy3, 0, T_Z)
-
-        time.sleep(1)
+        cf1.commander.send_hover_setpoint(setVx1, setVy1, 0, T_Z)
+        cf2.commander.send_hover_setpoint(setVx2, setVy2, 0, T_Z)
+        cf3.commander.send_hover_setpoint(setVx3, setVy3, 0, T_Z)
 
 
 def calc_R(roll, pitch, yaw, px, py, pz):
