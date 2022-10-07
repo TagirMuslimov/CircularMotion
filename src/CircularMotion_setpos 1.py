@@ -10,11 +10,11 @@ from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 timestr = time.strftime("%Y%m%d-%H%M%S")
 fp = open(timestr + '_setpos1.csv', 'w')
 
-URI1 = 'radio://0/80/2M/E7E7E7E702'
+URI1 = 'radio://0/80/2M/E7E7E7E703'
 
 CX = 0.5
 CY = 0.0
-k = 5.0
+k = 1.0
 R = 0.3
 v_f = 0.05
 v_cruis = 0.3
