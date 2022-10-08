@@ -13,14 +13,16 @@ fp = open(timestr + '_setpos2.csv', 'w')
 URI1 = 'radio://0/80/2M/E7E7E7E701'
 URI2 = 'radio://0/80/2M/E7E7E7E703'
 
-CX = 0.75
-CY = -0.25
+MIN_BAT = 3.1
+
+CX = 0
+CY = 0
 k = 5.0
 R = 0.5
-v_f = 0.5
+v_f = 0.7
 D_12 = 2 * math.pi / 2
-v_cruis = 0.5
-k_f = 0.1
+v_cruis = 0.7
+k_f = 3
 
 T_Z = 0.2
 v_z = 0.05
@@ -30,7 +32,11 @@ logging.basicConfig(level=logging.ERROR)
 position_estimate_cf1 = [0, 0, 0]
 position_estimate_cf2 = [0, 0, 0]
 
+lighthouse_status_cf1 = 0
+lighthouse_status_cf2 = 0
 
+bat_cf1 = 0
+bat_cf2 = 0
 
 def log_pos_callback_cf1(timestamp, data, logconf):
     global position_estimate_cf1
@@ -38,12 +44,24 @@ def log_pos_callback_cf1(timestamp, data, logconf):
     position_estimate_cf1[1] = data['kalman.stateY']
     position_estimate_cf1[2] = data['kalman.stateZ']
 
+    global lighthouse_status_cf1
+    global bat_cf1
+
+    lighthouse_status_cf1 = data['lighthouse.status']
+    bat_cf1 = data['pm.vbat']
+
 
 def log_pos_callback_cf2(timestamp, data, logconf):
     global position_estimate_cf2
     position_estimate_cf2[0] = data['kalman.stateX']
     position_estimate_cf2[1] = data['kalman.stateY']
     position_estimate_cf2[2] = data['kalman.stateZ']
+
+    global lighthouse_status_cf2
+    global bat_cf2
+
+    lighthouse_status_cf2 = data['lighthouse.status']
+    bat_cf2 = data['pm.vbat']
 
 
 def take_off(cf1, cf2, position):
@@ -85,7 +103,7 @@ def write_log(**log_vars):
 
 
 def forward_circle(cf1, cf2):
-    steps = 20000
+    steps = 900
     for i in range(steps):
 
         print("forward_circle" + str(i))
@@ -126,18 +144,22 @@ def forward_circle(cf1, cf2):
         if i == 0:
             init_log(i=i, T_Z=T_Z, v_z=v_z, CX=CX, CY=CY, k=k, R=R, D_12=D_12,
                      v_f=v_f, v_cruis=v_cruis, k_f=k_f, p12=p12, 
-                     px_1=px_1, py_1=py_1, pz_1=pz_1, d_1=d_1, phi_1=phi_1, angle_1=angle_1, v1=v1, vx1=vx1, vy1=vy1, setPx1=setPx1, setPy1=setPy1,
-                     px_2=px_2, py_2=py_2, pz_2=pz_2, d_2=d_2, phi_2=phi_2, angle_2=angle_2, v2=v2, vx2=vx2, vy2=vy2, setPx2=setPx2, setPy2=setPy2,
+                     px_1=px_1, py_1=py_1, pz_1=pz_1, d_1=d_1, phi_1=phi_1, angle_1=angle_1, v1=v1, vx1=vx1, vy1=vy1, setPx1=setPx1, setPy1=setPy1, bat_cf1=bat_cf1, lighthouse_status_cf1 = lighthouse_status_cf1,
+                     px_2=px_2, py_2=py_2, pz_2=pz_2, d_2=d_2, phi_2=phi_2, angle_2=angle_2, v2=v2, vx2=vx2, vy2=vy2, setPx2=setPx2, setPy2=setPy2, bat_cf2=bat_cf2, lighthouse_status_cf2 = lighthouse_status_cf2,
                      )
 
         write_log(i=i, T_Z=T_Z, v_z=v_z, CX=CX, CY=CY, k=k, R=R, D_12=D_12,
                      v_f=v_f, v_cruis=v_cruis, k_f=k_f, p12=p12, 
-                     px_1=px_1, py_1=py_1, pz_1=pz_1, d_1=d_1, phi_1=phi_1, angle_1=angle_1, v1=v1, vx1=vx1, vy1=vy1, setPx1=setPx1, setPy1=setPy1,
-                     px_2=px_2, py_2=py_2, pz_2=pz_2, d_2=d_2, phi_2=phi_2, angle_2=angle_2, v2=v2, vx2=vx2, vy2=vy2, setPx2=setPx2, setPy2=setPy2,
+                     px_1=px_1, py_1=py_1, pz_1=pz_1, d_1=d_1, phi_1=phi_1, angle_1=angle_1, v1=v1, vx1=vx1, vy1=vy1, setPx1=setPx1, setPy1=setPy1, bat_cf1=bat_cf1, lighthouse_status_cf1 = lighthouse_status_cf1,
+                     px_2=px_2, py_2=py_2, pz_2=pz_2, d_2=d_2, phi_2=phi_2, angle_2=angle_2, v2=v2, vx2=vx2, vy2=vy2, setPx2=setPx2, setPy2=setPy2, bat_cf2=bat_cf2, lighthouse_status_cf2 = lighthouse_status_cf2,
                      )
 
         cf1.commander.send_position_setpoint(setPx1, setPy1, T_Z, 0)
         cf2.commander.send_position_setpoint(setPx2, setPy2, T_Z, 0)
+
+        if (bat_cf1 < MIN_BAT) or (bat_cf2 < MIN_BAT):
+            print('BATTERY LOW: STOPPING')
+            break
 
         time.sleep(0.1)
 
@@ -213,6 +235,8 @@ if __name__ == '__main__':
                 logconf1.add_variable('kalman.stateX', 'float')
                 logconf1.add_variable('kalman.stateY', 'float')
                 logconf1.add_variable('kalman.stateZ', 'float')
+                logconf1.add_variable('pm.vbat', 'float')
+                logconf1.add_variable('lighthouse.status', 'uint8_t')
                 scf1.cf.log.add_config(logconf1)
                 logconf1.data_received_cb.add_callback(log_pos_callback_cf1)
 
@@ -220,6 +244,8 @@ if __name__ == '__main__':
                 logconf2.add_variable('kalman.stateX', 'float')
                 logconf2.add_variable('kalman.stateY', 'float')
                 logconf2.add_variable('kalman.stateZ', 'float')
+                logconf2.add_variable('pm.vbat', 'float')
+                logconf2.add_variable('lighthouse.status', 'uint8_t')
                 scf2.cf.log.add_config(logconf2)
                 logconf2.data_received_cb.add_callback(log_pos_callback_cf2)
 
