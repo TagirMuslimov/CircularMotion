@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 plt.rcParams["figure.autolayout"] = True
 
-df = pd.read_csv('/home/tagir/CircularMotion/20221008-163951_setpos2.csv', header=0, delimiter=';')
+df = pd.read_csv('/home/tagir/CircularMotion/20221008-170951_setpos2.csv', header=0, delimiter=';')
 
 cols = df.columns
 for col in cols:
@@ -12,7 +12,7 @@ for col in cols:
 print(df.columns)
 
 # df.plot(x='i', y=['px_1','px_2','py_1','py_2'])
-df.plot(x='i', y=['px_1'])
+df.plot(x='px_2', y=['py_2'])
 
 
 plt.show()
