@@ -10,19 +10,19 @@ from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 timestr = time.strftime("%Y%m%d-%H%M%S")
 fp = open(timestr + '_setpos2.csv', 'w')
 
-URI1 = 'radio://0/80/2M/E7E7E7E702'
+URI1 = 'radio://0/80/2M/E7E7E7E701'
 URI2 = 'radio://0/80/2M/E7E7E7E703'
 
-CX = 0.5
-CY = 0.0
+CX = 0.75
+CY = -0.25
 k = 5.0
-R = 0.3
-v_f = 0.1
+R = 0.5
+v_f = 0.5
 D_12 = 2 * math.pi / 2
-v_cruis = 0.3
+v_cruis = 0.5
 k_f = 0.1
 
-T_Z = 0.3
+T_Z = 0.2
 v_z = 0.05
 
 logging.basicConfig(level=logging.ERROR)
@@ -168,7 +168,7 @@ def phase_shift(px_a, py_a, px_b, py_b):
     dot_product = (px_a - CX)*(px_b - CX) + (py_a - CY)*(py_b - CY)
     magnitude_i = math.sqrt((px_a - CX)**2 + (py_a - CY)**2)
     magnitude_j = math.sqrt((px_b - CX)**2 + (py_b - CY)**2)
-    triple_product = (px_a - CX)*(py_b - CY) + (px_b - CX)*(py_a - CY)
+    triple_product = (px_a - CX)*(py_b - CY) - (px_b - CX)*(py_a - CY)
     p_ab = math.acos(dot_product / (magnitude_i * magnitude_j))
     if triple_product > 0:
         p_ab = 2*math.pi - p_ab
@@ -230,6 +230,8 @@ if __name__ == '__main__':
                 cf1 = scf1.cf
                 cf2 = scf2.cf
 
+                # cf1.param.set_value('lighthouse.method', 0)
+                # cf2.param.set_value('lighthouse.method', 0)
 
                 # взлетаем
                 take_off(cf1, cf2, T_Z)
