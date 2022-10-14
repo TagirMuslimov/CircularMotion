@@ -12,7 +12,7 @@ for col in cols:
 print(df.columns)
 
 # df.plot(x='i', y=['px_1','px_2','py_1','py_2'])
-df.plot(x='px_2', y=['py_2'])
-df.plot(x='px_1', y=['py_1'])
+df.plot(x='i', y=['d_1','d_2'])
+df.plot(x='px_1', y=['vx1'])
 
 plt.show()
