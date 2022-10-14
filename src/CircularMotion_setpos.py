@@ -22,7 +22,7 @@ v_f = 0.05
 D_12 = 2 * math.pi / 3
 D_23 = 2 * math.pi / 3
 v_cruis = 0.05
-k_f = 0.1
+k_f = 3
 
 T_Z = 0.3
 v_z = 0.05
@@ -191,7 +191,7 @@ def phase_shift(px_a, py_a, px_b, py_b):
     dot_product = (px_a - CX)*(px_b - CX) + (py_a - CY)*(py_b - CY)
     magnitude_i = math.sqrt((px_a - CX)**2 + (py_a - CY)**2)
     magnitude_j = math.sqrt((px_b - CX)**2 + (py_b - CY)**2)
-    triple_product = (px_a - CX)*(py_b - CY) + (px_b - CX)*(py_a - CY)
+    triple_product = (px_a - CX)*(py_b - CY) - (px_b - CX)*(py_a - CY)
     p_ab = math.acos(dot_product / (magnitude_i * magnitude_j))
     if triple_product > 0:
         p_ab = 2*math.pi - p_ab
