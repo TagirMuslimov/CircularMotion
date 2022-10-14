@@ -18,7 +18,7 @@ MIN_BAT = 3.1
 CX = 0
 CY = 0
 k = 5.0
-R = 0.5
+R = 0.3
 v_f = 0.7
 D_12 = 2 * math.pi / 2
 v_cruis = 0.7
@@ -103,8 +103,14 @@ def write_log(**log_vars):
 
 
 def forward_circle(cf1, cf2):
+    global CX
+    global CY
+
     steps = 900
     for i in range(steps):
+
+        CX += 0.0005
+        CY += 0.0005
 
         print("forward_circle" + str(i))
         print(position_estimate_cf1)
