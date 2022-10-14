@@ -109,8 +109,8 @@ def forward_circle(cf1, cf2):
     steps = 900
     for i in range(steps):
 
-        CX += 0.0005
-        CY += 0.0005
+        CX += 0.001
+        CY += 0.001
 
         print("forward_circle" + str(i))
         print(position_estimate_cf1)
