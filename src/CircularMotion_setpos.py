@@ -14,17 +14,17 @@ URI1 = 'radio://0/80/2M/E7E7E7E701'
 URI2 = 'radio://0/80/2M/E7E7E7E702'
 URI3 = 'radio://0/80/2M/E7E7E7E703'
 
-CX = 0.5
-CY = 0.0
+CX = 0
+CY = 0
 k = 5.0
-R = 0.5
-v_f = 0.05
+R = 0.3
+v_f = 0.3
 D_12 = 2 * math.pi / 3
 D_23 = 2 * math.pi / 3
-v_cruis = 0.05
+v_cruis = 0.3
 k_f = 3
 
-T_Z = 0.3
+T_Z = 0.2
 v_z = 0.05
 
 logging.basicConfig(level=logging.ERROR)
