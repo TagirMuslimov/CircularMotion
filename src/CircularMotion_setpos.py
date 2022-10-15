@@ -14,6 +14,8 @@ URI1 = 'radio://0/80/2M/E7E7E7E701'
 URI2 = 'radio://0/80/2M/E7E7E7E702'
 URI3 = 'radio://0/80/2M/E7E7E7E703'
 
+MIN_BAT = 3.1
+
 CX = 0
 CY = 0
 k = 5.0
@@ -39,6 +41,11 @@ def log_pos_callback_cf1(timestamp, data, logconf):
     position_estimate_cf1[0] = data['kalman.stateX']
     position_estimate_cf1[1] = data['kalman.stateY']
     position_estimate_cf1[2] = data['kalman.stateZ']
+    global lighthouse_status_cf1
+    global bat_cf1
+
+    lighthouse_status_cf1 = data['lighthouse.status']
+    bat_cf1 = data['pm.vbat']
 
 
 def log_pos_callback_cf2(timestamp, data, logconf):
@@ -46,6 +53,11 @@ def log_pos_callback_cf2(timestamp, data, logconf):
     position_estimate_cf2[0] = data['kalman.stateX']
     position_estimate_cf2[1] = data['kalman.stateY']
     position_estimate_cf2[2] = data['kalman.stateZ']
+    global lighthouse_status_cf2
+    global bat_cf2
+
+    lighthouse_status_cf2 = data['lighthouse.status']
+    bat_cf2 = data['pm.vbat']
 
 
 def log_pos_callback_cf3(timestamp, data, logconf):
@@ -53,6 +65,11 @@ def log_pos_callback_cf3(timestamp, data, logconf):
     position_estimate_cf3[0] = data['kalman.stateX']
     position_estimate_cf3[1] = data['kalman.stateY']
     position_estimate_cf3[2] = data['kalman.stateZ']
+    global lighthouse_status_cf3
+    global bat_cf3
+
+    lighthouse_status_cf3 = data['lighthouse.status']
+    bat_cf3 = data['pm.vbat']
 
 
 def take_off(cf1, cf2, cf3, position):
@@ -95,7 +112,7 @@ def write_log(**log_vars):
 
 
 def forward_circle(cf1, cf2, cf3):
-    steps = 20000
+    steps = 900
     for i in range(steps):
 
         print("forward_circle" + str(i))
@@ -133,13 +150,13 @@ def forward_circle(cf1, cf2, cf3):
         vx2, vy2 = get_velocity(v2, angle_2)
         vx3, vy3 = get_velocity(v3, angle_3)
 
-        setPx1 = px_1 + vx1
-        setPx2 = px_2 + vx2
-        setPx3 = px_3 + vx3
+        setPx1 = px_1 + vx1/10
+        setPx2 = px_2 + vx2/10
+        setPx3 = px_3 + vx3/10
 
-        setPy1 = py_1 + vy1
-        setPy2 = py_2 + vy2
-        setPy3 = py_3 + vy3
+        setPy1 = py_1 + vy1/10
+        setPy2 = py_2 + vy2/10
+        setPy3 = py_3 + vy3/10
 
         if i == 0:
             init_log(i=i, T_Z=T_Z, v_z=v_z, CX=CX, CY=CY, k=k, R=R, D_12=D_12, D_23=D_23,
@@ -160,7 +177,11 @@ def forward_circle(cf1, cf2, cf3):
         cf2.commander.send_position_setpoint(setPx2, setPy2, T_Z, 0)
         cf3.commander.send_position_setpoint(setPx3, setPy3, T_Z, 0)
 
-        time.sleep(1)
+        if (bat_cf1 < MIN_BAT) or (bat_cf2 < MIN_BAT) or (bat_cf3 < MIN_BAT):
+            print('BATTERY LOW: STOPPING')
+            break
+
+        time.sleep(0.1)
 
 
 def land(cf1, cf2, cf3, position):
@@ -239,6 +260,8 @@ if __name__ == '__main__':
                 logconf1.add_variable('kalman.stateX', 'float')
                 logconf1.add_variable('kalman.stateY', 'float')
                 logconf1.add_variable('kalman.stateZ', 'float')
+                logconf1.add_variable('pm.vbat', 'float')
+                logconf1.add_variable('lighthouse.status', 'uint8_t')
                 scf1.cf.log.add_config(logconf1)
                 logconf1.data_received_cb.add_callback(log_pos_callback_cf1)
 
@@ -246,6 +269,8 @@ if __name__ == '__main__':
                 logconf2.add_variable('kalman.stateX', 'float')
                 logconf2.add_variable('kalman.stateY', 'float')
                 logconf2.add_variable('kalman.stateZ', 'float')
+                logconf2.add_variable('pm.vbat', 'float')
+                logconf2.add_variable('lighthouse.status', 'uint8_t')
                 scf2.cf.log.add_config(logconf2)
                 logconf2.data_received_cb.add_callback(log_pos_callback_cf2)
 
@@ -253,6 +278,8 @@ if __name__ == '__main__':
                 logconf3.add_variable('kalman.stateX', 'float')
                 logconf3.add_variable('kalman.stateY', 'float')
                 logconf3.add_variable('kalman.stateZ', 'float')
+                logconf3.add_variable('pm.vbat', 'float')
+                logconf3.add_variable('lighthouse.status', 'uint8_t')
                 scf3.cf.log.add_config(logconf3)
                 logconf3.data_received_cb.add_callback(log_pos_callback_cf3)
 
