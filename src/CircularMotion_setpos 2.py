@@ -11,9 +11,9 @@ timestr = time.strftime("%Y%m%d-%H%M%S")
 fp = open(timestr + '_setpos2.csv', 'w')
 
 URI1 = 'radio://0/80/2M/E7E7E7E701'
-URI2 = 'radio://0/80/2M/E7E7E7E703'
+URI2 = 'radio://0/80/2M/E7E7E7E702'
 
-MIN_BAT = 3.1
+MIN_BAT = 3.0
 
 CX = 0
 CY = 0
@@ -109,8 +109,8 @@ def forward_circle(cf1, cf2):
     steps = 900
     for i in range(steps):
 
-        CX += 0.001
-        CY += 0.001
+        # CX += 0.001
+        # CY += 0.001
 
         print("forward_circle" + str(i))
         print(position_estimate_cf1)

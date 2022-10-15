@@ -14,19 +14,19 @@ URI1 = 'radio://0/80/2M/E7E7E7E701'
 URI2 = 'radio://0/80/2M/E7E7E7E702'
 URI3 = 'radio://0/80/2M/E7E7E7E703'
 
-MIN_BAT = 3.1
+MIN_BAT = 2.8
 
 CX = 0
-CY = 0
+CY = 0.1
 k = 5.0
-R = 0.3
-v_f = 0.3
-D_12 = 2 * math.pi / 3
-D_23 = 2 * math.pi / 3
-v_cruis = 0.3
-k_f = 3
+R = 0.5
+v_f = 0.5
+D_12 = 2*math.pi / 3
+D_23 = 2*math.pi / 3
+v_cruis = 0.5
+k_f = 1
 
-T_Z = 0.2
+T_Z = 0.3
 v_z = 0.05
 
 logging.basicConfig(level=logging.ERROR)
@@ -130,7 +130,7 @@ def forward_circle(cf1, cf2, cf3):
 
         px_3 = position_estimate_cf3[0]
         py_3 = position_estimate_cf3[1]
-        pz_3 = position_estimate_cf1[2]
+        pz_3 = position_estimate_cf3[2]
 
         d_1, phi_1 = distance_to_centre(px_1, py_1)
         angle_1 = phase_angle(d_1, phi_1)
@@ -150,13 +150,13 @@ def forward_circle(cf1, cf2, cf3):
         vx2, vy2 = get_velocity(v2, angle_2)
         vx3, vy3 = get_velocity(v3, angle_3)
 
-        setPx1 = px_1 + vx1/10
-        setPx2 = px_2 + vx2/10
-        setPx3 = px_3 + vx3/10
+        setPx1 = px_1 + vx1/5
+        setPx2 = px_2 + vx2/5
+        setPx3 = px_3 + vx3/5
 
-        setPy1 = py_1 + vy1/10
-        setPy2 = py_2 + vy2/10
-        setPy3 = py_3 + vy3/10
+        setPy1 = py_1 + vy1/5
+        setPy2 = py_2 + vy2/5
+        setPy3 = py_3 + vy3/5
 
         if i == 0:
             init_log(i=i, T_Z=T_Z, v_z=v_z, CX=CX, CY=CY, k=k, R=R, D_12=D_12, D_23=D_23,
@@ -179,6 +179,9 @@ def forward_circle(cf1, cf2, cf3):
 
         if (bat_cf1 < MIN_BAT) or (bat_cf2 < MIN_BAT) or (bat_cf3 < MIN_BAT):
             print('BATTERY LOW: STOPPING')
+            print('cf1:' +str(bat_cf1))
+            print('cf2:' +str(bat_cf2))
+            print('cf3:' +str(bat_cf3))
             break
 
         time.sleep(0.1)
