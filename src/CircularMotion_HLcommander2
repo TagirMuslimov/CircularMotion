@@ -70,13 +70,8 @@ def take_off(cf1, cf2, position):
     steps = int(take_off_time / sleep_time)
     vz = position / take_off_time
 
-    print(vz)
-
-    for i in range(steps):
-        print("take_off" + str(i))
-        cf1.commander.send_velocity_world_setpoint(0, 0, vz, 0)
-        cf2.commander.send_velocity_world_setpoint(0, 0, vz, 0)
-        time.sleep(sleep_time)
+    cf1.PositionHlCommander.take_off(height = T_Z, velocity = vz)
+    cf2.PositionHlCommander.take_off(height = T_Z, velocity = vz)
 
 
 def forward(cf, distance):
@@ -160,8 +155,8 @@ def forward_circle(cf1, cf2):
                      px_2=px_2, py_2=py_2, pz_2=pz_2, d_2=d_2, phi_2=phi_2, angle_2=angle_2, v2=v2, vx2=vx2, vy2=vy2, setPx2=setPx2, setPy2=setPy2, bat_cf2=bat_cf2, lighthouse_status_cf2 = lighthouse_status_cf2,
                      )
 
-        cf1.commander.send_position_setpoint(setPx1, setPy1, T_Z, 0)
-        cf2.commander.send_position_setpoint(setPx2, setPy2, T_Z, 0)
+        cf1.PositionHlCommander.go_to(x = setPx1, y = setPy1, z = T_Z)
+        cf2.PositionHlCommander.go_to(x = setPx2, y = setPy2, z = T_Z)
 
         if (bat_cf1 < MIN_BAT) or (bat_cf2 < MIN_BAT):
             print('BATTERY LOW: STOPPING')
@@ -176,16 +171,8 @@ def land(cf1, cf2, position):
     steps = int(landing_time / sleep_time)
     vz = -position / landing_time
 
-    print(vz)
-
-    for i in range(steps):
-        print("land" + str(i))
-        cf1.commander.send_velocity_world_setpoint(0, 0, vz, 0)
-        cf2.commander.send_velocity_world_setpoint(0, 0, vz, 0)
-        time.sleep(sleep_time)
-
-    cf1.commander.send_stop_setpoint()
-    cf2.commander.send_stop_setpoint()
+    cf1.PositionHlCommander.land(velocity = vz, landing_height = 0.1)
+    cf2.PositionHlCommander.land(velocity = vz, landing_height = 0.1)
 
     # Make sure that the last packet leaves before the link is closed
     # since the message queue is not flushed before closing
