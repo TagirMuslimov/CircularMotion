@@ -1,3 +1,5 @@
+#Flight of three copters
+
 from re import T
 import time
 import math
