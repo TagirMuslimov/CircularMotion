@@ -1,3 +1,6 @@
+#Flight of three copters
+
+from re import T
 import time
 import math
 import logging
@@ -6,19 +9,24 @@ import cflib.crtp
 from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 
+timestr = time.strftime("%Y%m%d-%H%M%S")
+fp = open(timestr + '_setpos.csv', 'w')
+
 URI1 = 'radio://0/80/2M/E7E7E7E701'
 URI2 = 'radio://0/80/2M/E7E7E7E702'
 URI3 = 'radio://0/80/2M/E7E7E7E703'
 
-CX = 0.5
-CY = 0.0
+MIN_BAT = 2.8
+
+CX = 0
+CY = 0.1
 k = 5.0
 R = 0.5
-v_f = 0.05
-D_12 = 2 * math.pi / 3
-D_23 = 2 * math.pi / 3
-v_cruis = 0.05
-k_f = 0.1
+v_f = 0.5
+D_12 = 2*math.pi / 3
+D_23 = 2*math.pi / 3
+v_cruis = 0.5
+k_f = 1
 
 T_Z = 0.3
 v_z = 0.05
@@ -29,23 +37,42 @@ position_estimate_cf1 = [0, 0, 0]
 position_estimate_cf2 = [0, 0, 0]
 position_estimate_cf3 = [0, 0, 0]
 
+
 def log_pos_callback_cf1(timestamp, data, logconf):
     global position_estimate_cf1
-    position_estimate_cf1[0] = data['stateEstimate.x']
-    position_estimate_cf1[1] = data['stateEstimate.y']
-    position_estimate_cf1[2] = data['stateEstimate.z']
+    position_estimate_cf1[0] = data['kalman.stateX']
+    position_estimate_cf1[1] = data['kalman.stateY']
+    position_estimate_cf1[2] = data['kalman.stateZ']
+    global lighthouse_status_cf1
+    global bat_cf1
+
+    lighthouse_status_cf1 = data['lighthouse.status']
+    bat_cf1 = data['pm.vbat']
+
 
 def log_pos_callback_cf2(timestamp, data, logconf):
     global position_estimate_cf2
-    position_estimate_cf2[0] = data['stateEstimate.x']
-    position_estimate_cf2[1] = data['stateEstimate.y']
-    position_estimate_cf2[2] = data['stateEstimate.z']
+    position_estimate_cf2[0] = data['kalman.stateX']
+    position_estimate_cf2[1] = data['kalman.stateY']
+    position_estimate_cf2[2] = data['kalman.stateZ']
+    global lighthouse_status_cf2
+    global bat_cf2
+
+    lighthouse_status_cf2 = data['lighthouse.status']
+    bat_cf2 = data['pm.vbat']
+
 
 def log_pos_callback_cf3(timestamp, data, logconf):
     global position_estimate_cf3
-    position_estimate_cf3[0] = data['stateEstimate.x']
-    position_estimate_cf3[1] = data['stateEstimate.y']
-    position_estimate_cf3[2] = data['stateEstimate.z']
+    position_estimate_cf3[0] = data['kalman.stateX']
+    position_estimate_cf3[1] = data['kalman.stateY']
+    position_estimate_cf3[2] = data['kalman.stateZ']
+    global lighthouse_status_cf3
+    global bat_cf3
+
+    lighthouse_status_cf3 = data['lighthouse.status']
+    bat_cf3 = data['pm.vbat']
+
 
 def take_off(cf1, cf2, cf3, position):
     take_off_time = 1.0
@@ -56,11 +83,12 @@ def take_off(cf1, cf2, cf3, position):
     print(vz)
 
     for i in range(steps):
-        print ("take_off" + str(i))
+        print("take_off" + str(i))
         cf1.commander.send_velocity_world_setpoint(0, 0, vz, 0)
         cf2.commander.send_velocity_world_setpoint(0, 0, vz, 0)
         cf3.commander.send_velocity_world_setpoint(0, 0, vz, 0)
         time.sleep(sleep_time)
+
 
 def forward(cf, distance):
     sleep_time = 0.1
@@ -68,25 +96,32 @@ def forward(cf, distance):
     steps = int(distance / vx / sleep_time)
 
     for i in range(steps):
-        print ("forward" + str(i))
+        print("forward" + str(i))
         cf.commander.send_velocity_world_setpoint(vx, 0, 0, 0)
         time.sleep(sleep_time)
 
-def forward_circle(cf1, cf2, cf3):
-    fp = open('log.csv', 'w')
-    fp.write('i; TZ; vz; CX; CY; k; R; D_12; D_23; v_f; v_cruis; k_f; p12; p23;')
-    fp.write('px1; py1; pz1; d1; phi1; angle1; v1; vx1; vy1; vz1;')
-    fp.write('px2; py2; pz2; d2; phi2; angle2; v2; vx2; vy2; vz2;')
-    fp.write('px3; py3; pz3; d3; phi3; angle3; v3; vx3; vy3; vz3;')
-    fp.write('\n')
-    steps = 20000
-    for i in range (steps):
 
-        print ("forward_circle" + str(i))
+def init_log(**log_vars):
+    for k, v in log_vars.items():
+        fp.write(str(k) + ';')
+    fp.write('\n')
+
+
+def write_log(**log_vars):
+    for k, v in log_vars.items():
+        fp.write(str(v) + ';')
+    fp.write('\n')
+
+
+def forward_circle(cf1, cf2, cf3):
+    steps = 900
+    for i in range(steps):
+
+        print("forward_circle" + str(i))
         print(position_estimate_cf1)
         print(position_estimate_cf2)
         print(position_estimate_cf3)
-        
+
         px_1 = position_estimate_cf1[0]
         py_1 = position_estimate_cf1[1]
         pz_1 = position_estimate_cf1[2]
@@ -97,16 +132,16 @@ def forward_circle(cf1, cf2, cf3):
 
         px_3 = position_estimate_cf3[0]
         py_3 = position_estimate_cf3[1]
-        pz_3 = position_estimate_cf1[2]
+        pz_3 = position_estimate_cf3[2]
 
-        d_1, phi_1 = distance_to_centre (px_1, py_1)
-        angle_1 = phase_angle (d_1, phi_1)
+        d_1, phi_1 = distance_to_centre(px_1, py_1)
+        angle_1 = phase_angle(d_1, phi_1)
 
-        d_2, phi_2 = distance_to_centre (px_2, py_2)
-        angle_2 = phase_angle (d_2, phi_2)
+        d_2, phi_2 = distance_to_centre(px_2, py_2)
+        angle_2 = phase_angle(d_2, phi_2)
 
-        d_3, phi_3 = distance_to_centre (px_3, py_3)
-        angle_3 = phase_angle (d_3, phi_3)
+        d_3, phi_3 = distance_to_centre(px_3, py_3)
+        angle_3 = phase_angle(d_3, phi_3)
 
         p12 = phase_shift(px_1, py_1, px_2, py_2)
         p23 = phase_shift(px_2, py_2, px_3, py_3)
@@ -117,80 +152,42 @@ def forward_circle(cf1, cf2, cf3):
         vx2, vy2 = get_velocity(v2, angle_2)
         vx3, vy3 = get_velocity(v3, angle_3)
 
-        vz1 = 0
-        if pz_1 < T_Z:
-            vz1 = v_z
-        if pz_1 > T_Z:
-            vz1 = -v_z
+        setPx1 = px_1 + vx1/5
+        setPx2 = px_2 + vx2/5
+        setPx3 = px_3 + vx3/5
 
-        vz2 = 0
-        if pz_2 < T_Z:
-            vz2 = v_z
-        if pz_2 > T_Z:
-            vz2 = -v_z
+        setPy1 = py_1 + vy1/5
+        setPy2 = py_2 + vy2/5
+        setPy3 = py_3 + vy3/5
 
-        vz3 = 0
-        if pz_3 < T_Z:
-            vz3 = v_z
-        if pz_3 > T_Z:
-            vz3 = -v_z              
-        
-        fp.write(
-            str(i) + ';' +
-            str(T_Z) + ';' +
-            str(v_z) + ';' +
-            str(CX) + ';' +
-            str(CY) + ';' +
-            str(k) + ';' +
-            str(R) + ';' +
-            str(D_12) + ';' +
-            str(D_23) + ';' +
-            str(v_f) + ';' +
-            str(v_cruis) + ';' +
-            str(k_f) + ';' +
-            str(p12) + ';' +
-            str(p23) + ';' +
+        if i == 0:
+            init_log(i=i, T_Z=T_Z, v_z=v_z, CX=CX, CY=CY, k=k, R=R, D_12=D_12, D_23=D_23,
+                     v_f=v_f, v_cruis=v_cruis, k_f=k_f, p12=p12, p23=p23,
+                     px_1=px_1, py_1=py_1, pz_1=pz_1, d_1=d_1, phi_1=phi_1, angle_1=angle_1, v1=v1, vx1=vx1, vy1=vy1, setPx1=setPx1, setPy1=setPy1,
+                     px_2=px_2, py_2=py_2, pz_2=pz_2, d_2=d_2, phi_2=phi_2, angle_2=angle_2, v2=v2, vx2=vx2, vy2=vy2, setPx2=setPx2, setPy2=setPy2,
+                     px_3=px_3, py_3=py_3, pz_3=pz_3, d_3=d_3, phi_3=phi_3, angle_3=angle_3, v3=v3, vx3=vx3, vy3=vy3, setPx3=setPx3, setPy3=setPy3,
+                     )
 
-            str(px_1) + ';' +
-            str(py_1) + ';' +
-            str(pz_1) + ';' +
-            str(d_1) + ';' +
-            str(phi_1) + ';' +
-            str(angle_1) + ';' +
-            str(v1) + ';' +
-            str(vx1) + ';' +
-            str(vy1) + ';' +
-            str(vz1) + ';' +
+        write_log(i=i, T_Z=T_Z, v_z=v_z, CX=CX, CY=CY, k=k, R=R, D_12=D_12, D_23=D_23,
+                  v_f=v_f, v_cruis=v_cruis, k_f=k_f, p12=p12, p23=p23,
+                  px_1=px_1, py_1=py_1, pz_1=pz_1, d_1=d_1, phi_1=phi_1, angle_1=angle_1, v1=v1, vx1=vx1, vy1=vy1, setPx1=setPx1, setPy1=setPy1,
+                  px_2=px_2, py_2=py_2, pz_2=pz_2, d_2=d_2, phi_2=phi_2, angle_2=angle_2, v2=v2, vx2=vx2, vy2=vy2, setPx2=setPx2, setPy2=setPy2,
+                  px_3=px_3, py_3=py_3, pz_3=pz_3, d_3=d_3, phi_3=phi_3, angle_3=angle_3, v3=v3, vx3=vx3, vy3=vy3, setPx3=setPx3, setPy3=setPy3,
+                  )
 
-            str(px_2) + ';' +
-            str(py_2) + ';' +
-            str(pz_2) + ';' +
-            str(d_2) + ';' +
-            str(phi_2) + ';' +
-            str(angle_2) + ';' +
-            str(v2) + ';' +
-            str(vx2) + ';' +
-            str(vy2) + ';' +
-            str(vz2) + ';' +
+        cf1.commander.send_position_setpoint(setPx1, setPy1, T_Z, 0)
+        cf2.commander.send_position_setpoint(setPx2, setPy2, T_Z, 0)
+        cf3.commander.send_position_setpoint(setPx3, setPy3, T_Z, 0)
 
-            str(px_3) + ';' +
-            str(py_3) + ';' +
-            str(pz_3) + ';' +
-            str(d_3) + ';' +
-            str(phi_3) + ';' +
-            str(angle_3) + ';' +
-            str(v3) + ';' +
-            str(vx3) + ';' +
-            str(vy3) + ';' +
-            str(vz3) + ';' +
-            '\n'
-        )
+        if (bat_cf1 < MIN_BAT) or (bat_cf2 < MIN_BAT) or (bat_cf3 < MIN_BAT):
+            print('BATTERY LOW: STOPPING')
+            print('cf1:' +str(bat_cf1))
+            print('cf2:' +str(bat_cf2))
+            print('cf3:' +str(bat_cf3))
+            break
 
-        cf1.commander.send_velocity_world_setpoint(vx1, vy1, vz1, 0)
-        cf2.commander.send_velocity_world_setpoint(vx2, vy2, vz2, 0)
-        cf3.commander.send_velocity_world_setpoint(vx3, vy3, vz3, 0)
-    
-    fp.close()
+        time.sleep(0.1)
+
 
 def land(cf1, cf2, cf3, position):
     landing_time = 1.0
@@ -201,7 +198,7 @@ def land(cf1, cf2, cf3, position):
     print(vz)
 
     for i in range(steps):
-        print ("land" + str(i))
+        print("land" + str(i))
         cf1.commander.send_velocity_world_setpoint(0, 0, vz, 0)
         cf2.commander.send_velocity_world_setpoint(0, 0, vz, 0)
         cf3.commander.send_velocity_world_setpoint(0, 0, vz, 0)
@@ -215,33 +212,39 @@ def land(cf1, cf2, cf3, position):
     # since the message queue is not flushed before closing
     time.sleep(0.1)
 
+
 def phase_shift(px_a, py_a, px_b, py_b):
     dot_product = (px_a - CX)*(px_b - CX) + (py_a - CY)*(py_b - CY)
     magnitude_i = math.sqrt((px_a - CX)**2 + (py_a - CY)**2)
     magnitude_j = math.sqrt((px_b - CX)**2 + (py_b - CY)**2)
-    triple_product = (px_a - CX)*(py_b - CY) + (px_b - CX)*(py_a - CY)
+    triple_product = (px_a - CX)*(py_b - CY) - (px_b - CX)*(py_a - CY)
     p_ab = math.acos(dot_product / (magnitude_i * magnitude_j))
     if triple_product > 0:
         p_ab = 2*math.pi - p_ab
     return p_ab
 
+
 def velocity(p_12, p_23):
     v1 = v_cruis + v_f * (2 / math.pi) * math.atan(k_f * (p_12 - D_12))
-    v2 = v_cruis + v_f * (2 / math.pi) * math.atan(k_f * (-p_12 + D_12 + p_23 - D_23))
+    v2 = v_cruis + v_f * (2 / math.pi) * math.atan(k_f *
+                                                   (-p_12 + D_12 + p_23 - D_23))
     v3 = v_cruis + v_f * (2 / math.pi) * math.atan(k_f * (-p_23 + D_23))
     return (v1, v2, v3)
 
-def distance_to_centre (px, py):
+
+def distance_to_centre(px, py):
     d = math.sqrt((px - CX)**2 + (py - CY)**2)
     phi = math.atan2(px - CX, py - CY)
     print('d= ' + str(d))
     print('phi= ' + str(phi))
     return (d, phi)
 
-def phase_angle (d, phi):
+
+def phase_angle(d, phi):
     angle = phi + math.pi/2 + math.atan(k * (d - R))
     print('angle= ' + str(angle))
     return angle
+
 
 def get_velocity(v, angle):
     vx = v * math.sin(angle)
@@ -251,31 +254,37 @@ def get_velocity(v, angle):
     return (vx.real, vy.real)
 
 
-
 if __name__ == '__main__':
+
     cflib.crtp.init_drivers()
 
     with SyncCrazyflie(URI1, cf=cflib.crazyflie.Crazyflie(rw_cache='./cache')) as scf1:
         with SyncCrazyflie(URI2, cf=cflib.crazyflie.Crazyflie(rw_cache='./cache')) as scf2:
             with SyncCrazyflie(URI3, cf=cflib.crazyflie.Crazyflie(rw_cache='./cache')) as scf3:
                 logconf1 = LogConfig(name='Position', period_in_ms=10)
-                logconf1.add_variable('stateEstimate.x', 'float')
-                logconf1.add_variable('stateEstimate.y', 'float')
-                logconf1.add_variable('stateEstimate.z', 'float')
+                logconf1.add_variable('kalman.stateX', 'float')
+                logconf1.add_variable('kalman.stateY', 'float')
+                logconf1.add_variable('kalman.stateZ', 'float')
+                logconf1.add_variable('pm.vbat', 'float')
+                logconf1.add_variable('lighthouse.status', 'uint8_t')
                 scf1.cf.log.add_config(logconf1)
                 logconf1.data_received_cb.add_callback(log_pos_callback_cf1)
 
                 logconf2 = LogConfig(name='Position', period_in_ms=10)
-                logconf2.add_variable('stateEstimate.x', 'float')
-                logconf2.add_variable('stateEstimate.y', 'float')
-                logconf2.add_variable('stateEstimate.z', 'float')
+                logconf2.add_variable('kalman.stateX', 'float')
+                logconf2.add_variable('kalman.stateY', 'float')
+                logconf2.add_variable('kalman.stateZ', 'float')
+                logconf2.add_variable('pm.vbat', 'float')
+                logconf2.add_variable('lighthouse.status', 'uint8_t')
                 scf2.cf.log.add_config(logconf2)
                 logconf2.data_received_cb.add_callback(log_pos_callback_cf2)
 
                 logconf3 = LogConfig(name='Position', period_in_ms=10)
-                logconf3.add_variable('stateEstimate.x', 'float')
-                logconf3.add_variable('stateEstimate.y', 'float')
-                logconf3.add_variable('stateEstimate.z', 'float')
+                logconf3.add_variable('kalman.stateX', 'float')
+                logconf3.add_variable('kalman.stateY', 'float')
+                logconf3.add_variable('kalman.stateZ', 'float')
+                logconf3.add_variable('pm.vbat', 'float')
+                logconf3.add_variable('lighthouse.status', 'uint8_t')
                 scf3.cf.log.add_config(logconf3)
                 logconf3.data_received_cb.add_callback(log_pos_callback_cf3)
 
@@ -283,9 +292,9 @@ if __name__ == '__main__':
                 logconf2.start()
                 logconf3.start()
 
-                cf1=scf1.cf
-                cf2=scf2.cf
-                cf3=scf3.cf
+                cf1 = scf1.cf
+                cf2 = scf2.cf
+                cf3 = scf3.cf
 
                 # взлетаем
                 take_off(cf1, cf2, cf3, T_Z)
@@ -299,3 +308,5 @@ if __name__ == '__main__':
                 logconf1.stop()
                 logconf2.stop()
                 logconf3.stop()
+
+    fp.close()

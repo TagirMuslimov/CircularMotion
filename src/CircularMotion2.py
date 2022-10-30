@@ -8,15 +8,13 @@ from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 
 URI1 = 'radio://0/80/2M/E7E7E7E701'
 URI2 = 'radio://0/80/2M/E7E7E7E702'
-URI3 = 'radio://0/80/2M/E7E7E7E703'
 
 CX = 0.5
 CY = 0.0
 k = 5.0
 R = 0.5
 v_f = 0.05
-D_12 = 2 * math.pi / 3
-D_23 = 2 * math.pi / 3
+D_12 = 2 * math.pi / 2
 v_cruis = 0.05
 k_f = 0.1
 
@@ -27,7 +25,6 @@ logging.basicConfig(level=logging.ERROR)
 
 position_estimate_cf1 = [0, 0, 0]
 position_estimate_cf2 = [0, 0, 0]
-position_estimate_cf3 = [0, 0, 0]
 
 def log_pos_callback_cf1(timestamp, data, logconf):
     global position_estimate_cf1
@@ -41,13 +38,7 @@ def log_pos_callback_cf2(timestamp, data, logconf):
     position_estimate_cf2[1] = data['stateEstimate.y']
     position_estimate_cf2[2] = data['stateEstimate.z']
 
-def log_pos_callback_cf3(timestamp, data, logconf):
-    global position_estimate_cf3
-    position_estimate_cf3[0] = data['stateEstimate.x']
-    position_estimate_cf3[1] = data['stateEstimate.y']
-    position_estimate_cf3[2] = data['stateEstimate.z']
-
-def take_off(cf1, cf2, cf3, position):
+def take_off(cf1, cf2, position):
     take_off_time = 1.0
     sleep_time = 0.1
     steps = int(take_off_time / sleep_time)
@@ -59,7 +50,6 @@ def take_off(cf1, cf2, cf3, position):
         print ("take_off" + str(i))
         cf1.commander.send_velocity_world_setpoint(0, 0, vz, 0)
         cf2.commander.send_velocity_world_setpoint(0, 0, vz, 0)
-        cf3.commander.send_velocity_world_setpoint(0, 0, vz, 0)
         time.sleep(sleep_time)
 
 def forward(cf, distance):
@@ -72,12 +62,11 @@ def forward(cf, distance):
         cf.commander.send_velocity_world_setpoint(vx, 0, 0, 0)
         time.sleep(sleep_time)
 
-def forward_circle(cf1, cf2, cf3):
+def forward_circle(cf1, cf2):
     fp = open('log.csv', 'w')
-    fp.write('i; TZ; vz; CX; CY; k; R; D_12; D_23; v_f; v_cruis; k_f; p12; p23;')
-    fp.write('px1; py1; pz1; d1; phi1; angle1; v1; vx1; vy1; vz1;')
-    fp.write('px2; py2; pz2; d2; phi2; angle2; v2; vx2; vy2; vz2;')
-    fp.write('px3; py3; pz3; d3; phi3; angle3; v3; vx3; vy3; vz3;')
+    fp.write('i; TZ; vz; CX; CY; k; R; D_12; v_f; v_cruis; k_f; p12;')
+    fp.write('px1; py1; pz1; d1; phi1; angle1; v1; vx1; vy1; setPx1;setPy1;setPz1;')
+    fp.write('px2; py2; pz2; d2; phi2; angle2; v2; vx2; vy2; setPx2;setPy2;setPz2')
     fp.write('\n')
     steps = 20000
     for i in range (steps):
@@ -85,7 +74,6 @@ def forward_circle(cf1, cf2, cf3):
         print ("forward_circle" + str(i))
         print(position_estimate_cf1)
         print(position_estimate_cf2)
-        print(position_estimate_cf3)
         
         px_1 = position_estimate_cf1[0]
         py_1 = position_estimate_cf1[1]
@@ -95,45 +83,27 @@ def forward_circle(cf1, cf2, cf3):
         py_2 = position_estimate_cf2[1]
         pz_2 = position_estimate_cf2[2]
 
-        px_3 = position_estimate_cf3[0]
-        py_3 = position_estimate_cf3[1]
-        pz_3 = position_estimate_cf1[2]
-
         d_1, phi_1 = distance_to_centre (px_1, py_1)
         angle_1 = phase_angle (d_1, phi_1)
 
         d_2, phi_2 = distance_to_centre (px_2, py_2)
         angle_2 = phase_angle (d_2, phi_2)
 
-        d_3, phi_3 = distance_to_centre (px_3, py_3)
-        angle_3 = phase_angle (d_3, phi_3)
-
         p12 = phase_shift(px_1, py_1, px_2, py_2)
-        p23 = phase_shift(px_2, py_2, px_3, py_3)
 
-        v1, v2, v3 = velocity(p12, p23)
+        v1, v2 = velocity(p12)
 
         vx1, vy1 = get_velocity(v1, angle_1)
         vx2, vy2 = get_velocity(v2, angle_2)
-        vx3, vy3 = get_velocity(v3, angle_3)
 
-        vz1 = 0
-        if pz_1 < T_Z:
-            vz1 = v_z
-        if pz_1 > T_Z:
-            vz1 = -v_z
+        setPx1 = px_1 + vx1
+        setPx2 = px_2 + vx2
 
-        vz2 = 0
-        if pz_2 < T_Z:
-            vz2 = v_z
-        if pz_2 > T_Z:
-            vz2 = -v_z
+        setPy1 = py_1 + vy1
+        setPy2 = py_2 + vy2
 
-        vz3 = 0
-        if pz_3 < T_Z:
-            vz3 = v_z
-        if pz_3 > T_Z:
-            vz3 = -v_z              
+        setPz1 = T_Z
+        setPz2 = T_Z
         
         fp.write(
             str(i) + ';' +
@@ -144,12 +114,10 @@ def forward_circle(cf1, cf2, cf3):
             str(k) + ';' +
             str(R) + ';' +
             str(D_12) + ';' +
-            str(D_23) + ';' +
             str(v_f) + ';' +
             str(v_cruis) + ';' +
             str(k_f) + ';' +
             str(p12) + ';' +
-            str(p23) + ';' +
 
             str(px_1) + ';' +
             str(py_1) + ';' +
@@ -160,7 +128,9 @@ def forward_circle(cf1, cf2, cf3):
             str(v1) + ';' +
             str(vx1) + ';' +
             str(vy1) + ';' +
-            str(vz1) + ';' +
+            str(setPx1) + ';' +
+            str(setPy1) + ';' +
+            str(setPz1) + ';' +
 
             str(px_2) + ';' +
             str(py_2) + ';' +
@@ -171,28 +141,19 @@ def forward_circle(cf1, cf2, cf3):
             str(v2) + ';' +
             str(vx2) + ';' +
             str(vy2) + ';' +
-            str(vz2) + ';' +
+            str(setPx2) + ';' +
+            str(setPy2) + ';' +
+            str(setPz2) + ';' +
 
-            str(px_3) + ';' +
-            str(py_3) + ';' +
-            str(pz_3) + ';' +
-            str(d_3) + ';' +
-            str(phi_3) + ';' +
-            str(angle_3) + ';' +
-            str(v3) + ';' +
-            str(vx3) + ';' +
-            str(vy3) + ';' +
-            str(vz3) + ';' +
             '\n'
         )
 
-        cf1.commander.send_velocity_world_setpoint(vx1, vy1, vz1, 0)
-        cf2.commander.send_velocity_world_setpoint(vx2, vy2, vz2, 0)
-        cf3.commander.send_velocity_world_setpoint(vx3, vy3, vz3, 0)
+        cf1.commander.send_position_setpoint(setPx1, setPy1, setPz1, 0)
+        cf2.commander.send_position_setpoint(setPx2, setPy2, setPz2, 0)
     
     fp.close()
 
-def land(cf1, cf2, cf3, position):
+def land(cf1, cf2, position):
     landing_time = 1.0
     sleep_time = 0.1
     steps = int(landing_time / sleep_time)
@@ -204,12 +165,10 @@ def land(cf1, cf2, cf3, position):
         print ("land" + str(i))
         cf1.commander.send_velocity_world_setpoint(0, 0, vz, 0)
         cf2.commander.send_velocity_world_setpoint(0, 0, vz, 0)
-        cf3.commander.send_velocity_world_setpoint(0, 0, vz, 0)
         time.sleep(sleep_time)
 
     cf1.commander.send_stop_setpoint()
     cf2.commander.send_stop_setpoint()
-    cf3.commander.send_stop_setpoint()
 
     # Make sure that the last packet leaves before the link is closed
     # since the message queue is not flushed before closing
@@ -225,11 +184,10 @@ def phase_shift(px_a, py_a, px_b, py_b):
         p_ab = 2*math.pi - p_ab
     return p_ab
 
-def velocity(p_12, p_23):
+def velocity(p_12):
     v1 = v_cruis + v_f * (2 / math.pi) * math.atan(k_f * (p_12 - D_12))
-    v2 = v_cruis + v_f * (2 / math.pi) * math.atan(k_f * (-p_12 + D_12 + p_23 - D_23))
-    v3 = v_cruis + v_f * (2 / math.pi) * math.atan(k_f * (-p_23 + D_23))
-    return (v1, v2, v3)
+    v2 = v_cruis + v_f * (2 / math.pi) * math.atan(k_f * (-p_12 + D_12))
+    return (v1, v2)
 
 def distance_to_centre (px, py):
     d = math.sqrt((px - CX)**2 + (py - CY)**2)
@@ -257,45 +215,34 @@ if __name__ == '__main__':
 
     with SyncCrazyflie(URI1, cf=cflib.crazyflie.Crazyflie(rw_cache='./cache')) as scf1:
         with SyncCrazyflie(URI2, cf=cflib.crazyflie.Crazyflie(rw_cache='./cache')) as scf2:
-            with SyncCrazyflie(URI3, cf=cflib.crazyflie.Crazyflie(rw_cache='./cache')) as scf3:
-                logconf1 = LogConfig(name='Position', period_in_ms=10)
-                logconf1.add_variable('stateEstimate.x', 'float')
-                logconf1.add_variable('stateEstimate.y', 'float')
-                logconf1.add_variable('stateEstimate.z', 'float')
-                scf1.cf.log.add_config(logconf1)
-                logconf1.data_received_cb.add_callback(log_pos_callback_cf1)
+            logconf1 = LogConfig(name='Position', period_in_ms=10)
+            logconf1.add_variable('stateEstimate.x', 'float')
+            logconf1.add_variable('stateEstimate.y', 'float')
+            logconf1.add_variable('stateEstimate.z', 'float')
+            scf1.cf.log.add_config(logconf1)
+            logconf1.data_received_cb.add_callback(log_pos_callback_cf1)
 
-                logconf2 = LogConfig(name='Position', period_in_ms=10)
-                logconf2.add_variable('stateEstimate.x', 'float')
-                logconf2.add_variable('stateEstimate.y', 'float')
-                logconf2.add_variable('stateEstimate.z', 'float')
-                scf2.cf.log.add_config(logconf2)
-                logconf2.data_received_cb.add_callback(log_pos_callback_cf2)
+            logconf2 = LogConfig(name='Position', period_in_ms=10)
+            logconf2.add_variable('stateEstimate.x', 'float')
+            logconf2.add_variable('stateEstimate.y', 'float')
+            logconf2.add_variable('stateEstimate.z', 'float')
+            scf2.cf.log.add_config(logconf2)
+            logconf2.data_received_cb.add_callback(log_pos_callback_cf2)
 
-                logconf3 = LogConfig(name='Position', period_in_ms=10)
-                logconf3.add_variable('stateEstimate.x', 'float')
-                logconf3.add_variable('stateEstimate.y', 'float')
-                logconf3.add_variable('stateEstimate.z', 'float')
-                scf3.cf.log.add_config(logconf3)
-                logconf3.data_received_cb.add_callback(log_pos_callback_cf3)
+            logconf1.start()
+            logconf2.start()
 
-                logconf1.start()
-                logconf2.start()
-                logconf3.start()
+            cf1=scf1.cf
+            cf2=scf2.cf
 
-                cf1=scf1.cf
-                cf2=scf2.cf
-                cf3=scf3.cf
+            # взлетаем
+            take_off(cf1, cf2, T_Z)
 
-                # взлетаем
-                take_off(cf1, cf2, cf3, T_Z)
+            # летим по кругу
+            forward_circle(cf1, cf2)
 
-                # летим по кругу
-                forward_circle(cf1, cf2, cf3)
+            # садимся
+            land(cf1, cf2, 0)
 
-                # садимся
-                land(cf1, cf2, cf3, 0)
-
-                logconf1.stop()
-                logconf2.stop()
-                logconf3.stop()
+            logconf1.stop()
+            logconf2.stop()
