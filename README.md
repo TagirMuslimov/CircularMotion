@@ -4,7 +4,8 @@ Flight tests of the path following vector field method on the formation of Crazy
 The Lighthouse positioning system is used for experiments. https://www.bitcraze.io/documentation/lighthouse/
 
 $\textbf{A description of the testing is given in the .PDF file}$:
-[Description](https://github.com/TagirMuslimov/CircularMotion/files/9739753/document.pdf)
+[Description](https://github.com/TagirMuslimov/CircularMotion/files/9907534/document.pdf)
+
 
 
 <figure>
