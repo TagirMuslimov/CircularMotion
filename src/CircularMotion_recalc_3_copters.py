@@ -20,8 +20,8 @@ CY = 0.0
 k = 5.0
 R = 0.5
 v_f = 0.05
-D_12 = 2 * math.pi / 3
-D_23 = 2 * math.pi / 3
+D_12 = 3 * math.pi / 2
+D_23 = 3 * math.pi / 2
 v_cruis = 0.05
 k_f = 0.1
 
