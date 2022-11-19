@@ -12,16 +12,16 @@ from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 timestr = time.strftime("%Y%m%d-%H%M%S")
 fp = open(timestr + '_setpos.csv', 'w')
 
-URI1 = 'radio://0/80/2M/E7E7E7E701'
-URI2 = 'radio://0/80/2M/E7E7E7E702'
-URI3 = 'radio://0/80/2M/E7E7E7E703'
+URI1 = 'radio://0/80/2M/E7E7E7E711'
+URI2 = 'radio://0/80/2M/E7E7E7E712'
+URI3 = 'radio://0/80/2M/E7E7E7E713'
 
 MIN_BAT = 2.8
 
 CX = 0
 CY = 0.1
 k = 5.0
-R = 0.5
+R = 0.3
 v_f = 0.5
 D_12 = 3*math.pi / 2
 D_23 = 3*math.pi / 2
@@ -114,8 +114,13 @@ def write_log(**log_vars):
 
 
 def forward_circle(cf1, cf2, cf3):
-    steps = 900
+    global CX
+    global CY
+    steps = 700
     for i in range(steps):
+
+        CX += 0.001
+        CY += 0.001
 
         print("forward_circle" + str(i))
         print(position_estimate_cf1)
@@ -152,13 +157,13 @@ def forward_circle(cf1, cf2, cf3):
         vx2, vy2 = get_velocity(v2, angle_2)
         vx3, vy3 = get_velocity(v3, angle_3)
 
-        setPx1 = px_1 + vx1/5
-        setPx2 = px_2 + vx2/5
-        setPx3 = px_3 + vx3/5
+        setPx1 = px_1 + vx1/10
+        setPx2 = px_2 + vx2/10
+        setPx3 = px_3 + vx3/10
 
-        setPy1 = py_1 + vy1/5
-        setPy2 = py_2 + vy2/5
-        setPy3 = py_3 + vy3/5
+        setPy1 = py_1 + vy1/10
+        setPy2 = py_2 + vy2/10
+        setPy3 = py_3 + vy3/10
 
         if i == 0:
             init_log(i=i, T_Z=T_Z, v_z=v_z, CX=CX, CY=CY, k=k, R=R, D_12=D_12, D_23=D_23,
