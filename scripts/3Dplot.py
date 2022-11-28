@@ -26,9 +26,9 @@ for col in cols:
 print(df.columns)
 
 
-x = df['px_2']
-y = df['py_2']
-z = df['pz_2']
+x = df['px_1']
+y = df['py_1']
+z = df['pz_1']
 
 plt.cla()
 
