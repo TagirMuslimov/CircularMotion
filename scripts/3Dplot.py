@@ -17,7 +17,7 @@ ax = plt.axes(projection='3d')
 #     df[col] = df[col].astype(float)
 # df.set_index('i').plot()
 
-df = pd.read_csv('/home/tagir/CircularMotion/20221014-140915_setpos2.csv', header=0, delimiter=';')
+df = pd.read_csv(r'C:\Users\tagir\Documents\![Crazyflie Flight Tests]\![From Github]\CircularMotion\data\most valuable\2 copters with a moving center\20221014-140915_setpos2.csv', header=0, delimiter=';')
 
 cols = df.columns
 for col in cols:
@@ -26,18 +26,18 @@ for col in cols:
 print(df.columns)
 
 
-x = df['px_1']
-y = df['py_1']
-z = df['pz_1']
+x = df['px_2']
+y = df['py_2']
+z = df['pz_2']
 
 plt.cla()
 
-ax.plot3D(x, y, z, 'red')
+ax.plot3D(x, y, z, 'blue')
 
 
-ax.set_xlabel('px_1, [mm]')
-ax.set_ylabel('py_1, [mm]')
-ax.set_zlabel('pz_1, [mm]')
+ax.set_xlabel('px_2, [m]')
+ax.set_ylabel('py_2, [m]')
+ax.set_zlabel('pz_2, [m]')
 
 
 plt.show()
