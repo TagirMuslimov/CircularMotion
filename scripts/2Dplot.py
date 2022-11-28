@@ -5,7 +5,7 @@ import math
 
 plt.rcParams["figure.autolayout"] = True
 
-df = pd.read_csv(r'C:\Users\tagir\Documents\![Crazyflie Flight Tests]\!SITL and HITL\![Data from Ubu]\SITL Moving Center\2nd attempt\sim3_20221105-222005_.csv', header=0, delimiter=';')
+df = pd.read_csv(r'C:\Users\tagir\Documents\![Crazyflie Flight Tests]\![From Github]\CircularMotion\20221119-133734_setpos.csv', header=0, delimiter=';')
 
 cols = df.columns
 for col in cols:
@@ -18,7 +18,7 @@ print(df.columns)
 # df.plot(x='i', y=['setPx1','setPx2','setPx3'])
 # df.plot(x='i', y=['setPy1','setPy2','setPy3'])
 # df.plot(x='i', y=['p_12', 'p_23'])
-ax = df.plot(x='i', y=['p_12', 'p_23'])
+ax = df.plot(x='i', y=['p12', 'p23'])
 ax.set(xlabel='Time, [ds]', ylabel='Phase shifts, [rad]')
 
 # df.plot(x='i', y=['d_1','d_2', 'd_3'])
