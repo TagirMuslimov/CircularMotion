@@ -116,7 +116,7 @@ def write_log(**log_vars):
 def forward_circle(cf1, cf2, cf3):
     global CX
     global CY
-    steps = 700
+    steps = 900
     for i in range(steps):
 
         CX += 0.001

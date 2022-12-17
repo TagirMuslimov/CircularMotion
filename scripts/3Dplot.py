@@ -17,7 +17,7 @@ ax = plt.axes(projection='3d')
 #     df[col] = df[col].astype(float)
 # df.set_index('i').plot()
 
-df = pd.read_csv('/home/tagir/CircularMotion/20221119-133452_setpos.csv', header=0, delimiter=';')
+df = pd.read_csv('/home/tagir/CircularMotion/20221217-113451_setpos.csv', header=0, delimiter=';')
 
 cols = df.columns
 for col in cols:
