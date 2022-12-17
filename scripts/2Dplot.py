@@ -1,5 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+import math
 
 plt.rcParams["figure.autolayout"] = True
 
@@ -11,11 +13,30 @@ for col in cols:
 
 print(df.columns)
 
+
+
 # df.plot(x='i', y=['setPx1','setPx2','setPx3'])
 # df.plot(x='i', y=['setPy1','setPy2','setPy3'])
-df.plot(x='i', y=['p12', 'p23'])
-df.plot(x='i', y=['d_1','d_2', 'd_3'])
-df.plot(x='setPx1', y=['setPy1'])
-df.plot(x='setPx2', y=['setPy2'])
+# df.plot(x='i', y=['p_12', 'p_23'])
+ax = df.plot(x='i', y=['p12', 'p23'])
+ax.set(xlabel='Time, [ds]', ylabel='Phase shifts, [rad]')
+
+# df.plot(x='i', y=['d_1','d_2', 'd_3'])
+ax = df.plot(x='i', y=['d_1','d_2', 'd_3'])
+ax.set(xlabel='Time, [ds]', ylabel='Distances to the center, [m]')
+# df.plot(x='px_1', y=['py_1'])
+# df.plot(x='px_2', y=['py_2'])
+# ax = df.plot(x='px_1', y=['py_1'])
+# df.plot(x='px_2', y=['py_2'], ax=ax)
+
+fig, axes = plt.subplots(nrows=3, ncols=1)
+ax=df.plot(x='px_1', y=['py_1'], ax=axes[0])
+ax.set(xlabel='px_1, [m]', ylabel='py_1, [m]')
+
+ax=df.plot(x='px_2', y=['py_2'], ax=axes[1])
+ax.set(xlabel='px_2, [m]', ylabel='py_2, [m]')
+
+ax=df.plot(x='px_3', y=['py_3'], ax=axes[2])
+ax.set(xlabel='px_3, [m]', ylabel='py_3, [m]')
 # df.plot(x='setPx3', y=['setPy3'])
 plt.show()

@@ -17,8 +17,8 @@ ax = plt.axes(projection='3d')
 #     df[col] = df[col].astype(float)
 # df.set_index('i').plot()
 
-df = pd.read_csv('/home/tagir/CircularMotion/20221217-113451_setpos.csv', header=0, delimiter=';')
 
+df = pd.read_csv('/home/tagir/CircularMotion/20221217-113451_setpos.csv', header=0, delimiter=';')
 cols = df.columns
 for col in cols:
     df[col] = df[col].astype(float)
@@ -32,12 +32,12 @@ z = df['pz_3']
 
 plt.cla()
 
-ax.plot3D(x, y, z, 'red')
+ax.plot3D(x, y, z, 'blue')
 
 
-ax.set_xlabel('px_1, [mm]')
-ax.set_ylabel('py_1, [mm]')
-ax.set_zlabel('pz_1, [mm]')
+ax.set_xlabel('px_3, [m]')
+ax.set_ylabel('py_3, [m]')
+ax.set_zlabel('pz_3, [m]')
 
 
 plt.show()
