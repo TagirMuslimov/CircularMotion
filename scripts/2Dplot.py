@@ -5,7 +5,7 @@ import math
 
 plt.rcParams["figure.autolayout"] = True
 
-df = pd.read_csv(r'C:\Users\tagir\Documents\![Crazyflie Flight Tests]\![From Github]\CircularMotion\20221217-113451_setpos.csv', header=0, delimiter=';')
+df = pd.read_csv(r'C:\Users\tagir\Documents\![Artificial Potential Field]\[sim_cf]\sim3_20221221-144923_.csv', header=0, delimiter=';')
 
 cols = df.columns
 for col in cols:
@@ -20,6 +20,12 @@ print(df.columns)
 # df.plot(x='i', y=['p_12', 'p_23'])
 ax = df.plot(x='i', y=['p12', 'p23'])
 ax.set(xlabel='Time, [ds]', ylabel='Phase shifts, [rad]')
+
+# ax = df.plot(x='i', y=['p_12', 'p_23'])
+# ax.set(xlabel='Time, [ds]', ylabel='Phase shifts, [rad]')
+
+# ax = df.plot(x='i', y=['distance_12'])
+# ax.set(xlabel='Time, [ds]', ylabel='Distance between UAVs, [m]')
 
 # df.plot(x='i', y=['d_1','d_2', 'd_3'])
 ax = df.plot(x='i', y=['d_1','d_2', 'd_3'])
