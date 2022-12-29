@@ -18,7 +18,7 @@ ax = plt.axes(projection='3d')
 # df.set_index('i').plot()
 
 
-df = pd.read_csv('/home/tagir/CircularMotion/20221217-113451_setpos.csv', header=0, delimiter=';')
+df = pd.read_csv(r'C:\Users\tagir\Documents\![Artificial Potential Field]\[sim_cf]\sim3_20221221-144923_.csv', header=0, delimiter=';')
 cols = df.columns
 for col in cols:
     df[col] = df[col].astype(float)
